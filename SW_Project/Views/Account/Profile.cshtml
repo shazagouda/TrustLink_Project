@@ -1,0 +1,581 @@
+﻿@model SW_Project.Models.ApplicationUser
+@using SW_Project.Models
+@{
+    ViewData["Title"] = "My Profile — TrustLink";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+      
+        :root {
+            --navy: #0f1f3d;
+            --navy-mid: #1a3260;
+            --navy-light: #243d75;
+            --gold: #c9a84c;
+            --gold-light: #e0c47a;
+            --gold-pale: #f5edd8;
+            --ivory: #faf8f3;
+            --ivory-dark: #f0ead8;
+            --slate: #5a6a82;
+            --slate-light: #8fa0b8;
+            --white: #ffffff;
+            --text-dark: #0f1f3d;
+            --text-body: #3a4a5c;
+            --text-muted: #7a8a9c;
+            --border: rgba(15,31,61,0.12);
+            --shadow-sm: 0 2px 12px rgba(15,31,61,0.08);
+            --shadow-md: 0 8px 32px rgba(15,31,61,0.12);
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--ivory);
+            color: var(--text-body);
+            line-height: 1.7;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        /* Navbar */
+        .tl-navbar {
+            background: rgba(255,255,255,0.97);
+            padding: 0.85rem 0;
+            box-shadow: var(--shadow-sm);
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+            .tl-navbar .navbar-brand {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 1.65rem;
+                font-weight: 700;
+                color: #0a0f1f;
+            }
+
+                .tl-navbar .navbar-brand span {
+                    color: var(--gold);
+                }
+
+            .tl-navbar .nav-link {
+                font-family: 'DM Sans', sans-serif;
+                font-size: 0.88rem;
+                font-weight: 500;
+                color: var(--navy) !important;
+                padding: 0.4rem 1rem !important;
+                position: relative;
+            }
+
+        .btn-nav-cta {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.55rem 1.5rem !important;
+            background: var(--navy);
+            color: var(--white) !important;
+            border-radius: var(--radius-sm);
+        }
+
+            .btn-nav-cta:hover {
+                background: var(--gold);
+                color: var(--navy) !important;
+            }
+        /* Page Hero */
+        .page-hero {
+            background: var(--navy);
+            padding: 9rem 0 5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .page-hero::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background-image: linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+                background-size: 60px 60px;
+            }
+
+            .page-hero .container {
+                position: relative;
+                z-index: 2;
+            }
+
+        .page-hero-eyebrow {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .page-hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 400;
+            color: var(--ivory);
+        }
+        /* Profile Card */
+        .profile-section {
+            padding: 4rem 0;
+        }
+
+        .profile-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+            padding: 2.5rem;
+            text-align: center;
+            color: white;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin: 0 auto 1rem;
+            font-family: 'Cormorant Garamond', serif;
+            border: 4px solid var(--gold-light);
+        }
+
+        .profile-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-email {
+            font-size: 0.95rem;
+            opacity: 0.8;
+        }
+
+        .profile-body {
+            padding: 2rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .info-label i {
+                color: var(--gold);
+                width: 24px;
+            }
+
+        .info-value {
+            color: var(--text-body);
+        }
+
+        .stat-card {
+            background: var(--ivory);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            text-align: center;
+            transition: var(--transition);
+            height: 100%;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-md);
+                border-color: rgba(201,168,76,0.3);
+            }
+
+        .stat-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .btn-edit {
+            background: var(--navy);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+            .btn-edit:hover {
+                background: var(--gold);
+                color: var(--navy);
+            }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.6rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+            .btn-logout:hover {
+                background: #e74c3c;
+                color: white;
+                border-color: #e74c3c;
+            }
+
+        .section-title-sm {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 1.5rem;
+        }
+
+        .listing-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: var(--transition);
+            height: 100%;
+        }
+
+            .listing-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-md);
+            }
+
+        .listing-card-image {
+            height: 160px;
+            overflow: hidden;
+            position: relative;
+        }
+
+            .listing-card-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .listing-card-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--ivory-dark);
+            color: var(--slate-light);
+            font-size: 2rem;
+        }
+
+        .listing-card-body {
+            padding: 1rem;
+        }
+
+        .listing-card-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 0.25rem;
+        }
+
+        .listing-card-location {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .listing-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .listing-card-price {
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .listing-card-btn {
+            background: var(--navy);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            text-decoration: none;
+        }
+
+            .listing-card-btn:hover {
+                background: var(--gold);
+                color: var(--navy);
+            }
+
+        footer {
+            background: #0a1628;
+            padding: 2rem 0;
+            text-align: center;
+            color: rgba(250,248,243,0.4);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="tl-navbar navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">Trust<span>Link</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-2">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Listings">Browse</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Listings/MyListings">My Listings</a></li>
+                    <a href="/Bookings/MyBookings" class="btn-outline-tl" style="padding:0.55rem 1.25rem; font-size:0.85rem;">My Bookings</a>
+                    <a href="/Bookings/ReceivedBookings" class="btn-outline-tl" style="padding:0.55rem 1.25rem; font-size:0.85rem;">Received Bookings</a>
+                    <li class="nav-item"><a class="nav-link active" href="/Account/Profile">Profile</a></li>
+                    <li class="nav-item"><a class="btn-nav-cta" href="/Account/Logout">Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="container">
+            <span class="page-hero-eyebrow">My Account</span>
+            <h1 class="page-hero-title">Profile Overview</h1>
+        </div>
+    </section>
+
+    <!-- Profile Section -->
+    <section class="profile-section">
+        <div class="container">
+            <div class="row g-4">
+                <!-- Profile Card -->
+                <div class="col-lg-4">
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-avatar">
+                                @Model.Name?.Substring(0, 1).ToUpper()
+                            </div>
+                            <h2 class="profile-name">@Model.Name</h2>
+                            <div class="profile-email">@Model.Email</div>
+                        </div>
+                        <div class="profile-body">
+                            <div class="info-row">
+                                <span class="info-label"><i class="bi bi-telephone"></i> Phone</span>
+                                <span class="info-value">@(string.IsNullOrEmpty(Model.PhoneNumber) ? "Not provided" : Model.PhoneNumber)</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label"><i class="bi bi-geo-alt"></i> Location</span>
+                                <span class="info-value">@(string.IsNullOrEmpty(Model.Location) ? "Not provided" : Model.Location)</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label"><i class="bi bi-calendar3"></i> Member since</span>
+                                <span class="info-value">@Model.CreatedAt.ToString("MMMM dd, yyyy")</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label"><i class="bi bi-star-fill"></i> Rating</span>
+                                <span class="info-value">@Model.Rating.ToString("0.0") / 5.0</span>
+                            </div>
+                            <div class="d-flex gap-3 mt-4">
+                                <button class="btn-edit" data-bs-toggle="modal" data-bs-target="#editProfileModal"><i class="bi bi-pencil"></i> Edit Profile</button>
+                                <a href="/Account/Logout" class="btn-logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="col-lg-8">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="stat-card">
+                                <div class="stat-number">@(Model.Listings?.Count(l => l.Status == "Available") ?? 0)</div>
+                                <div class="stat-label">Active Listings</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stat-card">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Total Bookings</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stat-card">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Active Contracts</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stat-card">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Favorites</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My Listings Section -->
+                    <div class="profile-card mt-4">
+                        <div class="profile-body">
+                            <h3 class="section-title-sm">My Listings @(Model.Listings != null ? $"({Model.Listings.Count})" : "")</h3>
+                            @if (Model.Listings != null && Model.Listings.Any())
+                            {
+                                <div class="row g-3">
+                                    @foreach (var listing in Model.Listings.OrderByDescending(l => l.CreatedAt))
+                                    {
+                                        <div class="col-md-4">
+                                            <div class="listing-card">
+                                                <div class="listing-card-image">
+                                                    @{
+                                                        var firstImage = listing.ListingImages?.FirstOrDefault();
+                                                    }
+                                                    @if (firstImage != null)
+                                                    {
+                                                        <img src="@firstImage.ImagePath" alt="@listing.Title">
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="listing-card-image-placeholder">
+                                                            <i class="bi @(listing.Category?.Icon ?? "bi-box")"></i>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="listing-card-body">
+                                                    <div class="listing-card-title">@listing.Title</div>
+                                                    <div class="listing-card-location"><i class="bi bi-geo-alt"></i> @listing.Location</div>
+                                                    <div class="listing-card-footer">
+                                                        <span class="listing-card-price">$@listing.PricePerDay / day</span>
+                                                        <a href="/Listings/Details/@listing.Id" class="listing-card-btn">View</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-4 text-muted">
+                                    <i class="bi bi-box-seam" style="font-size: 2rem;"></i>
+                                    <p class="mt-2">You haven't posted any listings yet.</p>
+                                    <a href="/Listings/Create" class="btn-primary-tl" style="display: inline-block; margin-top: 0.5rem;">+ Post a Listing</a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: var(--radius-lg);">
+                <div class="modal-header" style="border-bottom-color: var(--border);">
+                    <h5 class="modal-title" style="font-family:'Cormorant Garamond',serif; font-weight:600;">Edit Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="post" action="/Account/UpdateProfile">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="Name" class="form-control" value="@Model.Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" name="PhoneNumber" class="form-control" value="@Model.PhoneNumber">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Location (City/Area)</label>
+                            <input type="text" name="Location" class="form-control" value="@Model.Location">
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top-color: var(--border);">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn" style="background: var(--navy); color: white;">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 TrustLink — Secure, documented peer exchanges.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', () => {});
+        });
+    </script>
+</body>
+</html>

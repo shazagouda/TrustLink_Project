@@ -1,0 +1,186 @@
+﻿@model SW_Project.Models.Listing
+@using SW_Project.Models
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/style.css">
+</head>
+<body>
+
+ <div class="d-flex gap-3 align-items-center">
+    @if (User?.Identity?.IsAuthenticated == true)
+    {
+        <a href="/Listings/Create" class="btn-post-listing">+ Post Listing</a>
+        <a href="/Listings/MyListings" class="nav-link-custom">My Listings</a>
+        <a href="/Bookings/MyBookings" class="nav-link-custom">My Bookings</a>
+        <a href="/Bookings/ReceivedBookings" class="nav-link-custom">Received Bookings</a>
+        <a href="/Account/Profile" class="nav-link-custom">Profile</a>
+        <a href="/Account/Logout" class="nav-link-custom">Logout</a>
+    }
+    else
+    {
+        <a href="/Account/Login" class="btn-outline-tl-nav">Sign In</a>
+        <a href="/Account/Register" class="btn-nav-cta-nav">Get Started</a>
+    }
+</div>
+    <section class="page-hero" style="padding: 6rem 0 2rem;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <span class="page-hero-eyebrow">@(Model.Category?.Name ?? "General")</span>
+                    <h1 class="page-hero-title">@Model.Title</h1>
+                    <p class="page-hero-desc"><i class="bi bi-geo-alt"></i> @Model.Location</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="profile-section">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <!-- عرض الصور كـ Carousel -->
+                    @if (Model.ListingImages != null && Model.ListingImages.Any())
+                    {
+                        <div id="listingCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                @for (int i = 0; i < Model.ListingImages.Count; i++)
+                                {
+                                    var img = Model.ListingImages.ElementAt(i);
+                                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                                        <img src="@img.ImagePath" class="d-block w-100" alt="Listing image" style="border-radius: var(--radius-md); max-height: 400px; object-fit: cover;">
+                                    </div>
+                                }
+                            </div>
+                            @if (Model.ListingImages.Count > 1)
+                            {
+                                <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="listing-card-image-placeholder mb-4" style="height: 300px; display: flex; align-items: center; justify-content: center; background: var(--ivory-dark); border-radius: var(--radius-md);">
+                            <i class="bi bi-image" style="font-size: 4rem; color: var(--slate-light);"></i>
+                        </div>
+                    }
+
+                    <div class="profile-card" style="padding: 2rem;">
+                        <h3>Description</h3>
+                        <p>@Model.Description</p>
+                        <hr />
+                        <h4>Price: <span class="text-gold">$@Model.PricePerDay</span> / day</h4>
+                        @if (Model.Deposit.HasValue)
+                        {
+                            <p><strong>Deposit:</strong> $@Model.Deposit</p>
+                        }
+                        <div class="mt-4 d-flex gap-3">
+                            <a href="/Bookings/Create?listingId=@Model.Id" class="btn-primary-tl">Book Now</a>
+                            <a href="#" class="btn-outline-tl" id="messageOwnerBtn">Message Owner</a>
+                        </div>
+                        <div class="alert alert-info mt-3" id="demoAlert" style="display:none;">Coming soon: Booking system and messaging!</div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-avatar">
+                                @(Model.Owner != null ? Model.Owner.Name?.Substring(0, 1).ToUpper() : "?")
+                            </div>
+                            <h3 class="profile-name">@(Model.Owner?.Name ?? "Unknown Owner")</h3>
+                            <div class="profile-email">@(Model.Owner?.Email ?? "")</div>
+                        </div>
+                        <div class="profile-body">
+                            <div class="info-row">
+                                <span class="info-label"><i class="bi bi-calendar3"></i> Member since</span>
+                                <span class="info-value">@(Model.Owner?.CreatedAt.ToString("MMMM yyyy") ?? "N/A")</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label"><i class="bi bi-star-fill"></i> Rating</span>
+                                <span class="info-value">@(Model.Owner?.Rating.ToString("0.0") ?? "0.0") / 5.0</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label"><i class="bi bi-geo-alt"></i> Location</span>
+                                <span class="info-value">@(Model.Owner?.Location ?? "Not provided")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="tl-footer">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-4 col-md-6">
+                    <a class="footer-brand" href="/">Trust<span>Link</span></a>
+                    <p class="footer-desc">Smart resource sharing backed by legally binding digital contracts.</p>
+                </div>
+                <div class="col-lg-2 col-md-3 col-6">
+                    <div class="footer-heading">Platform</div>
+                    <ul class="footer-links">
+                        <li><a href="/Listings">Browse Listings</a></li>
+                        <li><a href="/Home/HowItWorks">How It Works</a></li>
+                        <li><a href="/Account/Login">Sign In</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-3 col-6">
+                    <div class="footer-heading">Company</div>
+                    <ul class="footer-links">
+                        <li><a href="/Home/About">About Us</a></li>
+                        <li><a href="/Home/Contact">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-copyright">&copy; 2024 TrustLink. All rights reserved.</div>
+                <div class="footer-social">
+                    <a href="#"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('bookNowBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            let alertDiv = document.getElementById('demoAlert');
+            alertDiv.style.display = 'block';
+            alertDiv.innerHTML = '⚠️ Booking system is not yet active. Coming soon!';
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+                alertDiv.innerHTML = 'Coming soon: Booking system and messaging!';
+            }, 5000);
+        });
+        document.getElementById('messageOwnerBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            let alertDiv = document.getElementById('demoAlert');
+            alertDiv.style.display = 'block';
+            alertDiv.innerHTML = '💬 Messaging system is not yet active. Coming soon!';
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+                alertDiv.innerHTML = 'Coming soon: Booking system and messaging!';
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

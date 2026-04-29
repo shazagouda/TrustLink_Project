@@ -1,0 +1,88 @@
+﻿@model List<SW_Project.Models.Booking>
+@using SW_Project.Models
+@{
+    ViewData["Title"] = "My Bookings — TrustLink";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/style.css">
+</head>
+<body>
+
+    <
+    <div class="d-flex gap-3 align-items-center">
+        @if (User?.Identity?.IsAuthenticated == true)
+        {
+            <a href="/Listings/Create" class="btn-post-listing">+ Post Listing</a>
+            <a href="/Listings/MyListings" class="nav-link-custom">My Listings</a>
+            <a href="/Bookings/MyBookings" class="nav-link-custom">My Bookings</a>
+            <a href="/Bookings/ReceivedBookings" class="nav-link-custom">Received Bookings</a>
+            <a href="/Account/Profile" class="nav-link-custom">Profile</a>
+            <a href="/Account/Logout" class="nav-link-custom">Logout</a>
+        }
+        else
+        {
+            <a href="/Account/Login" class="btn-outline-tl-nav">Sign In</a>
+            <a href="/Account/Register" class="btn-nav-cta-nav">Get Started</a>
+        }
+    </div>
+
+    <section class="page-hero" style="padding:8rem 0 3.5rem;">
+        <div class="container">
+            <div class="col-lg-8">
+                <span class="page-hero-eyebrow">My Account</span>
+                <h1 class="page-hero-title">My <em>Bookings</em></h1>
+                <p class="page-hero-desc">All your rental requests and their status.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="profile-section" style="padding:2rem 0 5rem;">
+        <div class="container">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-calendar-x" style="font-size: 4rem; color: var(--slate-light);"></i>
+                    <h3>No bookings yet</h3>
+                    <p>Browse listings and make your first booking.</p>
+                    <a href="/Listings" class="btn-primary-tl">Explore Listings</a>
+                </div>
+            }
+            else
+            {
+                <div class="row g-4">
+                    @foreach (var booking in Model)
+                    {
+                        <div class="col-md-6 col-lg-4">
+                            <div class="profile-card">
+                                <div class="profile-header" style="padding: 1rem;">
+                                    <div class="profile-avatar" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                                        @(booking.Listing.Title.Substring(0, 1).ToUpper())
+                                    </div>
+                                    <h3 style="font-size: 1.1rem;" class="mt-2">@booking.Listing.Title</h3>
+                                </div>
+                                <div class="profile-body">
+                                    <p><i class="bi bi-calendar-week"></i> @booking.StartDate.ToString("MMM dd") - @booking.EndDate.ToString("MMM dd, yyyy")</p>
+                                    <p><strong>Total:</strong> $@booking.TotalPrice</p>
+                                    <p><span class="badge" style="background: @(booking.Status == "Pending" ? "#f39c12" : booking.Status == "Accepted" ? "#2ecc71" : "#e74c3c"); color:white;">@booking.Status</span></p>
+                                    <a href="/Listings/Details/@booking.ListingId" class="listing-card-btn">View Listing</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+    <footer class="tl-footer">...</footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

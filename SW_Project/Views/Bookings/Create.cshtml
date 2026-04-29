@@ -1,0 +1,145 @@
+@model SW_Project.Models.Booking
+@using SW_Project.Models
+@{
+    ViewData["Title"] = "Book Item — TrustLink";
+    Layout = null;
+    var listing = ViewBag.Listing as Listing;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/style.css">
+    <style>
+        .booking-card {
+            max-width: 700px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+        }
+
+        .summary-card {
+            background: var(--ivory);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="tl-navbar navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">Trust<span>Link</span></a>
+            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto me-4 gap-1">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Listings">Browse</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Bookings/MyBookings">My Bookings</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Account/Profile">Profile</a></li>
+                    <li class="nav-item"><a class="btn-nav-cta" href="/Account/Logout">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="page-hero" style="padding: 6rem 0 2rem;">
+        <div class="container">
+            <div class="col-lg-8 mx-auto text-center">
+                <span class="page-hero-eyebrow">Booking</span>
+                <h1 class="page-hero-title">Request to <em>Book</em></h1>
+                <p class="page-hero-desc">Select your rental dates and submit a request to the owner.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="profile-section" style="padding-top: 0;">
+        <div class="container">
+            <div class="booking-card">
+                <h3 style="color: var(--navy);">@listing?.Title</h3>
+                <p><i class="bi bi-geo-alt"></i> @listing?.Location</p>
+                <p><strong>Price:</strong> $@listing?.PricePerDay / day</p>
+                @if (listing?.Deposit > 0)
+                {
+                    <p><strong>Deposit:</strong> $@listing?.Deposit</p>
+                }
+
+                <form method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+                    <input type="hidden" asp-for="ListingId" />
+
+                    <div class="mb-3">
+                        <label asp-for="StartDate" class="form-label">Start Date *</label>
+                        <input asp-for="StartDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="EndDate" class="form-label">End Date *</label>
+                        <input asp-for="EndDate" type="date" class="form-control" min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="EndDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="summary-card">
+                        <h4>Booking Summary</h4>
+                        <div class="d-flex justify-content-between">
+                            <span>Daily price:</span>
+                            <span>$@listing?.PricePerDay</span>
+                        </div>
+                        <div class="d-flex justify-content-between" id="daysCount">
+                            <span>Total days:</span>
+                            <span>0</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Total price:</span>
+                            <span id="totalPrice">$0</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary-tl mt-4 w-100">Send Booking Request</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/script.js"></script>
+    <script>
+        const pricePerDay = @listing?.PricePerDay;
+        const startDateInput = document.getElementById('StartDate');
+        const endDateInput = document.getElementById('EndDate');
+        const daysSpan = document.getElementById('daysCount').querySelector('span:last-child');
+        const totalSpan = document.getElementById('totalPrice');
+
+        function updateSummary() {
+            const start = new Date(startDateInput.value);
+            const end = new Date(endDateInput.value);
+            if (start && end && end > start) {
+                const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                daysSpan.textContent = days;
+                totalSpan.textContent = `$${days * pricePerDay}`;
+            } else {
+                daysSpan.textContent = '0';
+                totalSpan.textContent = '$0';
+            }
+        }
+
+        startDateInput.addEventListener('change', updateSummary);
+        endDateInput.addEventListener('change', updateSummary);
+        updateSummary();
+    </script>
+</body>
+</html>

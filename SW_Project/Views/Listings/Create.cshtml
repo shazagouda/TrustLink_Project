@@ -1,0 +1,233 @@
+﻿@model SW_Project.Models.Listing
+@using SW_Project.Models
+@{
+    ViewData["Title"] = "Post a New Listing — TrustLink";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/style.css">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+        }
+
+        .form-label-tl {
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .form-control, .form-select {
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem 1rem;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: var(--gold);
+                box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+            }
+
+        .btn-submit {
+            background: var(--gold);
+            color: var(--navy);
+            border: none;
+            padding: 0.85rem;
+            font-weight: 700;
+            width: 100%;
+        }
+
+            .btn-submit:hover {
+                background: var(--gold-light);
+                transform: translateY(-2px);
+            }
+
+        .image-preview {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+            .image-preview img {
+                width: 80px;
+                height: 80px;
+                object-fit: cover;
+                border-radius: var(--radius-sm);
+                border: 1px solid var(--border);
+            }
+    </style>
+</head>
+<body>
+
+    <div class="d-flex gap-3 align-items-center">
+        @if (User?.Identity?.IsAuthenticated == true)
+        {
+            <a href="/Listings/Create" class="btn-post-listing">+ Post Listing</a>
+            <a href="/Listings/MyListings" class="nav-link-custom">My Listings</a>
+            <a href="/Bookings/MyBookings" class="nav-link-custom">My Bookings</a>
+            <a href="/Bookings/ReceivedBookings" class="nav-link-custom">Received Bookings</a>
+            <a href="/Account/Profile" class="nav-link-custom">Profile</a>
+            <a href="/Account/Logout" class="nav-link-custom">Logout</a>
+        }
+        else
+        {
+            <a href="/Account/Login" class="btn-outline-tl-nav">Sign In</a>
+            <a href="/Account/Register" class="btn-nav-cta-nav">Get Started</a>
+        }
+    </div>
+
+    <section class="page-hero" style="padding: 6rem 0 2rem;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <span class="page-hero-eyebrow">Share Your Item</span>
+                    <h1 class="page-hero-title">Post a <em>New Listing</em></h1>
+                    <p class="page-hero-desc">Fill in the details below to let others rent your valuable items or services.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="profile-section" style="padding-top: 0;">
+        <div class="container">
+            <div class="form-container">
+                <form method="post" asp-action="Create" asp-controller="Listings" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+
+                    <!-- ✅ إضافة عرض الأخطاء من ModelState -->
+                    <div asp-validation-summary="All" class="alert alert-danger" style="margin-bottom: 1.5rem; display: block;"></div>
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="validation-summary" style="margin-bottom: 1.5rem;">
+                            <ul>
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <div class="mb-4">
+                        <label asp-for="Title" class="form-label-tl">Title*</label>
+                        <input asp-for="Title" class="form-control" placeholder="e.g. Canon Camera, Power Drill" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label-tl">Description*</label>
+                        <textarea asp-for="Description" rows="5" class="form-control" placeholder="Describe the item, condition, rules, etc."></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label asp-for="PricePerDay" class="form-label-tl">Price per Day ($)*</label>
+                            <input asp-for="PricePerDay" type="number" step="0.01" class="form-control" placeholder="50" />
+                            <span asp-validation-for="PricePerDay" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Deposit" class="form-label-tl">Security Deposit ($) <small class="text-muted">(optional)</small></label>
+                            <input asp-for="Deposit" type="number" step="0.01" class="form-control" placeholder="200" />
+                            <span asp-validation-for="Deposit" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mt-2">
+                        <div class="col-md-6">
+                            <label asp-for="Location" class="form-label-tl">Location*</label>
+                            <input asp-for="Location" class="form-control" placeholder="City, Area" />
+                            <span asp-validation-for="Location" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="CategoryId" class="form-label-tl">Category*</label>
+                            <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(ViewBag.Categories, "Id", "Name"))">
+                                <option value="">-- Select Category --</option>
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- حقل رفع الصور -->
+                    <div class="mb-4">
+                        <label class="form-label-tl">Images (select one or more)</label>
+                        <input type="file" name="images" id="imageInput" class="form-control" multiple accept="image/*" />
+                        <small class="text-muted">You can select multiple images. First image will be the main picture.</small>
+                        <div class="image-preview" id="imagePreview"></div>
+                    </div>
+
+                    <div class="mt-5">
+                        <button type="submit" class="btn-submit btn-primary-tl">Post Listing <i class="bi bi-arrow-right ms-2"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="tl-footer mt-5">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-4 col-md-6">
+                    <a class="footer-brand" href="/">Trust<span>Link</span></a>
+                    <p class="footer-desc">Smart resource sharing backed by legally binding digital contracts.</p>
+                </div>
+                <div class="col-lg-2 col-md-3 col-6">
+                    <div class="footer-heading">Platform</div>
+                    <ul class="footer-links">
+                        <li><a href="/Listings">Browse Listings</a></li>
+                        <li><a href="/Home/HowItWorks">How It Works</a></li>
+                        <li><a href="/Account/Login">Sign In</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-3 col-6">
+                    <div class="footer-heading">Company</div>
+                    <ul class="footer-links">
+                        <li><a href="/Home/About">About Us</a></li>
+                        <li><a href="/Home/Contact">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-copyright">&copy; 2024 TrustLink. All rights reserved.</div>
+                <div class="footer-social">
+                    <a href="#"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/script.js"></script>
+    <script>
+        // Preview images before upload
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            Array.from(e.target.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const img = document.createElement('img');
+                    img.src = ev.target.result;
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+    </script>
+</body>
+</html>
