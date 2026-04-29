@@ -1,5 +1,5 @@
-﻿@model SW_Project.Models.ApplicationUser
-@using SW_Project.Models
+﻿@using SW_Project.ViewModels.Account
+@model ProfileVM
 @{
     ViewData["Title"] = "My Profile — TrustLink";
     Layout = null;
@@ -14,7 +14,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-      
         :root {
             --navy: #0f1f3d;
             --navy-mid: #1a3260;
@@ -57,6 +56,7 @@
             color: var(--text-dark);
             font-weight: 600;
         }
+
         /* Navbar */
         .tl-navbar {
             background: rgba(255,255,255,0.97);
@@ -87,7 +87,6 @@
                 font-weight: 500;
                 color: var(--navy) !important;
                 padding: 0.4rem 1rem !important;
-                position: relative;
             }
 
         .btn-nav-cta {
@@ -104,6 +103,7 @@
                 background: var(--gold);
                 color: var(--navy) !important;
             }
+
         /* Page Hero */
         .page-hero {
             background: var(--navy);
@@ -141,6 +141,7 @@
             font-weight: 400;
             color: var(--ivory);
         }
+
         /* Profile Card */
         .profile-section {
             padding: 4rem 0;
@@ -370,12 +371,53 @@
                 color: var(--navy);
             }
 
+        /* Tabs */
+        .tl-tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .tl-tab-btn {
+            background: none;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+            .tl-tab-btn.active {
+                color: var(--gold);
+                border-bottom: 2px solid var(--gold);
+                margin-bottom: -2px;
+            }
+
+        .tl-tab-pane {
+            display: none;
+        }
+
+            .tl-tab-pane.active {
+                display: block;
+            }
+
         footer {
             background: #0a1628;
             padding: 2rem 0;
             text-align: center;
             color: rgba(250,248,243,0.4);
             font-size: 0.85rem;
+        }
+
+        .booking-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
@@ -393,8 +435,6 @@
                     <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="/Listings">Browse</a></li>
                     <li class="nav-item"><a class="nav-link" href="/Listings/MyListings">My Listings</a></li>
-                    <a href="/Bookings/MyBookings" class="btn-outline-tl" style="padding:0.55rem 1.25rem; font-size:0.85rem;">My Bookings</a>
-                    <a href="/Bookings/ReceivedBookings" class="btn-outline-tl" style="padding:0.55rem 1.25rem; font-size:0.85rem;">Received Bookings</a>
                     <li class="nav-item"><a class="nav-link active" href="/Account/Profile">Profile</a></li>
                     <li class="nav-item"><a class="btn-nav-cta" href="/Account/Logout">Sign Out</a></li>
                 </ul>
@@ -452,79 +492,169 @@
                 <!-- Stats Cards -->
                 <div class="col-lg-8">
                     <div class="row g-4">
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <div class="stat-card">
-                                <div class="stat-number">@(Model.Listings?.Count(l => l.Status == "Available") ?? 0)</div>
+                                <div class="stat-number">@Model.ActiveListingsCount</div>
                                 <div class="stat-label">Active Listings</div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <div class="stat-card">
-                                <div class="stat-number">0</div>
+                                <div class="stat-number">@Model.TotalBookingsCount</div>
                                 <div class="stat-label">Total Bookings</div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <div class="stat-card">
-                                <div class="stat-number">0</div>
+                                <div class="stat-number">@Model.ActiveContractsCount</div>
                                 <div class="stat-label">Active Contracts</div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <div class="stat-card">
-                                <div class="stat-number">0</div>
+                                <div class="stat-number">@Model.FavoritesCount</div>
                                 <div class="stat-label">Favorites</div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- My Listings Section -->
+                    <!-- Tabs for My Listings, Bookings, Contracts -->
                     <div class="profile-card mt-4">
                         <div class="profile-body">
-                            <h3 class="section-title-sm">My Listings @(Model.Listings != null ? $"({Model.Listings.Count})" : "")</h3>
-                            @if (Model.Listings != null && Model.Listings.Any())
-                            {
-                                <div class="row g-3">
-                                    @foreach (var listing in Model.Listings.OrderByDescending(l => l.CreatedAt))
+                            <div class="tl-tabs">
+                                <button class="tl-tab-btn active" data-tab="listings">My Listings <span class="badge bg-secondary">@Model.MyListings.Count</span></button>
+                                <button class="tl-tab-btn" data-tab="bookings">My Bookings <span class="badge bg-secondary">@Model.MyBookings.Count</span></button>
+                                <button class="tl-tab-btn" data-tab="contracts">Contracts <span class="badge bg-secondary">@Model.MyContracts.Count</span></button>
+                            </div>
+
+                            <!-- Tab: My Listings -->
+                            <div id="tab-listings" class="tl-tab-pane active">
+                                @if (Model.MyListings.Any())
+                                {
+                                    <div class="row g-3">
+                                        @foreach (var listing in Model.MyListings)
+                                        {
+                                            <div class="col-md-4">
+                                                <div class="listing-card">
+                                                    <div class="listing-card-image">
+                                                        @if (!string.IsNullOrEmpty(listing.MainImageUrl))
+                                                        {
+                                                            <img src="@listing.MainImageUrl" alt="@listing.Title">
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="listing-card-image-placeholder">
+                                                                <i class="bi @listing.CategoryIcon"></i>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <div class="listing-card-body">
+                                                        <div class="listing-card-title">@listing.Title</div>
+                                                        <div class="listing-card-location"><i class="bi bi-geo-alt"></i> @listing.Location</div>
+                                                        <div class="listing-card-footer">
+                                                            <span class="listing-card-price">$@listing.PricePerDay / day</span>
+                                                            <a href="/Listings/Details/@listing.Id" class="listing-card-btn">View</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-center py-4 text-muted">
+                                        <i class="bi bi-box-seam" style="font-size: 2rem;"></i>
+                                        <p class="mt-2">You haven't posted any listings yet.</p>
+                                        <a href="/Listings/Create" class="btn-primary-tl" style="display: inline-block; margin-top: 0.5rem;">+ Post a Listing</a>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Tab: My Bookings -->
+                            <div id="tab-bookings" class="tl-tab-pane">
+                                @if (Model.MyBookings.Any())
+                                {
+                                    @foreach (var booking in Model.MyBookings)
                                     {
-                                        <div class="col-md-4">
-                                            <div class="listing-card">
-                                                <div class="listing-card-image">
-                                                    @{
-                                                        var firstImage = listing.ListingImages?.FirstOrDefault();
-                                                    }
-                                                    @if (firstImage != null)
+                                        <div class="booking-card">
+                                            <div class="row align-items-center">
+                                                <div class="col-auto">
+                                                    @if (!string.IsNullOrEmpty(booking.ListingImageUrl))
                                                     {
-                                                        <img src="@firstImage.ImagePath" alt="@listing.Title">
+                                                        <img src="@booking.ListingImageUrl" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
                                                     }
                                                     else
                                                     {
-                                                        <div class="listing-card-image-placeholder">
-                                                            <i class="bi @(listing.Category?.Icon ?? "bi-box")"></i>
+                                                        <div style="width: 60px; height: 60px; background: var(--ivory-dark); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                                            <i class="bi bi-image"></i>
                                                         </div>
                                                     }
                                                 </div>
-                                                <div class="listing-card-body">
-                                                    <div class="listing-card-title">@listing.Title</div>
-                                                    <div class="listing-card-location"><i class="bi bi-geo-alt"></i> @listing.Location</div>
-                                                    <div class="listing-card-footer">
-                                                        <span class="listing-card-price">$@listing.PricePerDay / day</span>
-                                                        <a href="/Listings/Details/@listing.Id" class="listing-card-btn">View</a>
-                                                    </div>
+                                                <div class="col">
+                                                    <h6 style="margin-bottom: 0.25rem;">@booking.ListingTitle</h6>
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-calendar"></i> @booking.StartDate.ToString("MMM dd") - @booking.EndDate.ToString("MMM dd, yyyy")
+                                                    </small>
+                                                    <br />
+                                                    <small>
+                                                        <strong>@booking.OtherPartyName</strong>
+                                                        (@(booking.IsOwner ? "you are owner" : "you are renter"))
+                                                    </small>
+                                                </div>
+                                                <div class="col-auto text-end">
+                                                    <div><strong>$@booking.TotalPrice</strong></div>
+                                                    <span class="badge @(booking.Status == "Confirmed" ? "bg-success" : "bg-warning")">@booking.Status</span>
+                                                    <br />
+                                                    <a href="/Bookings/Details/@booking.Id" class="btn btn-sm btn-outline-primary mt-2">View</a>
                                                 </div>
                                             </div>
                                         </div>
                                     }
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="text-center py-4 text-muted">
-                                    <i class="bi bi-box-seam" style="font-size: 2rem;"></i>
-                                    <p class="mt-2">You haven't posted any listings yet.</p>
-                                    <a href="/Listings/Create" class="btn-primary-tl" style="display: inline-block; margin-top: 0.5rem;">+ Post a Listing</a>
-                                </div>
-                            }
+                                }
+                                else
+                                {
+                                    <div class="text-center py-4 text-muted">
+                                        <i class="bi bi-calendar-x" style="font-size: 2rem;"></i>
+                                        <p class="mt-2">No bookings yet.</p>
+                                        <a href="/Listings" class="btn-primary-tl" style="display: inline-block; margin-top: 0.5rem;">Browse Listings</a>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Tab: Contracts -->
+                            <div id="tab-contracts" class="tl-tab-pane">
+                                @if (Model.MyContracts.Any())
+                                {
+                                    @foreach (var contract in Model.MyContracts)
+                                    {
+                                        <div class="booking-card">
+                                            <div class="row align-items-center">
+                                                <div class="col">
+                                                    <h6 style="margin-bottom: 0.25rem;">@contract.ListingTitle</h6>
+                                                    <small class="text-muted">Contract #@contract.ContractNumber</small>
+                                                    <br />
+                                                    <small>With: <strong>@contract.OtherPartyName</strong></small>
+                                                </div>
+                                                <div class="col-auto text-end">
+                                                    <span class="badge @(contract.IsSigned ? "bg-success" : "bg-secondary")">
+                                                        @(contract.IsSigned ? "Signed" : "Pending")
+                                                    </span>
+                                                    <br />
+                                                    <a href="/Contracts/Details/@contract.Id" class="btn btn-sm btn-outline-primary mt-2">View Contract</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-center py-4 text-muted">
+                                        <i class="bi bi-file-text" style="font-size: 2rem;"></i>
+                                        <p class="mt-2">No contracts yet.</p>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -540,7 +670,7 @@
                     <h5 class="modal-title" style="font-family:'Cormorant Garamond',serif; font-weight:600;">Edit Profile</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form method="post" action="/Account/UpdateProfile">
+                <form method="post" asp-action="UpdateProfile" asp-controller="Account">
                     @Html.AntiForgeryToken()
                     <div class="modal-body">
                         <div class="mb-3">
@@ -573,8 +703,20 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.querySelectorAll('.btn-edit').forEach(btn => {
-            btn.addEventListener('click', () => {});
+        // Tab switching functionality
+        document.querySelectorAll('.tl-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tl-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tl-tab-pane').forEach(p => p.classList.remove('active'));
+
+                // Add active class to clicked tab
+                this.classList.add('active');
+
+                // Show corresponding pane
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+            });
         });
     </script>
 </body>

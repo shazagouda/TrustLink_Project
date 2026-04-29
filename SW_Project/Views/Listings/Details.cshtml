@@ -1,5 +1,5 @@
-﻿@model SW_Project.Models.Listing
-@using SW_Project.Models
+﻿@using SW_Project.ViewModels.Listing
+@model ListingDetailsVM
 @{
     ViewData["Title"] = Model.Title;
     Layout = null;
@@ -16,27 +16,28 @@
 </head>
 <body>
 
- <div class="d-flex gap-3 align-items-center">
-    @if (User?.Identity?.IsAuthenticated == true)
-    {
-        <a href="/Listings/Create" class="btn-post-listing">+ Post Listing</a>
-        <a href="/Listings/MyListings" class="nav-link-custom">My Listings</a>
-        <a href="/Bookings/MyBookings" class="nav-link-custom">My Bookings</a>
-        <a href="/Bookings/ReceivedBookings" class="nav-link-custom">Received Bookings</a>
-        <a href="/Account/Profile" class="nav-link-custom">Profile</a>
-        <a href="/Account/Logout" class="nav-link-custom">Logout</a>
-    }
-    else
-    {
-        <a href="/Account/Login" class="btn-outline-tl-nav">Sign In</a>
-        <a href="/Account/Register" class="btn-nav-cta-nav">Get Started</a>
-    }
-</div>
+    <div class="d-flex gap-3 align-items-center">
+        @if (User?.Identity?.IsAuthenticated == true)
+        {
+            <a href="/Listings/Create" class="btn-post-listing">+ Post Listing</a>
+            <a href="/Listings/MyListings" class="nav-link-custom">My Listings</a>
+            <a href="/Bookings/MyBookings" class="nav-link-custom">My Bookings</a>
+            <a href="/Bookings/ReceivedBookings" class="nav-link-custom">Received Bookings</a>
+            <a href="/Account/Profile" class="nav-link-custom">Profile</a>
+            <a href="/Account/Logout" class="nav-link-custom">Logout</a>
+        }
+        else
+        {
+            <a href="/Account/Login" class="btn-outline-tl-nav">Sign In</a>
+            <a href="/Account/Register" class="btn-nav-cta-nav">Get Started</a>
+        }
+    </div>
+
     <section class="page-hero" style="padding: 6rem 0 2rem;">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8">
-                    <span class="page-hero-eyebrow">@(Model.Category?.Name ?? "General")</span>
+                    <span class="page-hero-eyebrow">@Model.CategoryName</span>
                     <h1 class="page-hero-title">@Model.Title</h1>
                     <p class="page-hero-desc"><i class="bi bi-geo-alt"></i> @Model.Location</p>
                 </div>
@@ -48,20 +49,18 @@
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-8">
-                    <!-- عرض الصور كـ Carousel -->
-                    @if (Model.ListingImages != null && Model.ListingImages.Any())
+                    @if (Model.ImageUrls != null && Model.ImageUrls.Any())
                     {
                         <div id="listingCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
                             <div class="carousel-inner">
-                                @for (int i = 0; i < Model.ListingImages.Count; i++)
+                                @for (int i = 0; i < Model.ImageUrls.Count; i++)
                                 {
-                                    var img = Model.ListingImages.ElementAt(i);
                                     <div class="carousel-item @(i == 0 ? "active" : "")">
-                                        <img src="@img.ImagePath" class="d-block w-100" alt="Listing image" style="border-radius: var(--radius-md); max-height: 400px; object-fit: cover;">
+                                        <img src="@Model.ImageUrls[i]" class="d-block w-100" alt="Listing image" style="border-radius: var(--radius-md); max-height: 400px; object-fit: cover;">
                                     </div>
                                 }
                             </div>
-                            @if (Model.ListingImages.Count > 1)
+                            @if (Model.ImageUrls.Count > 1)
                             {
                                 <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
                                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -91,33 +90,44 @@
                             <p><strong>Deposit:</strong> $@Model.Deposit</p>
                         }
                         <div class="mt-4 d-flex gap-3">
-                            <a href="/Bookings/Create?listingId=@Model.Id" class="btn-primary-tl">Book Now</a>
+                            @if (!Model.IsOwner && Model.IsAvailable)
+                            {
+                                <a href="/Bookings/Create?listingId=@Model.Id" class="btn-primary-tl">Book Now</a>
+                            }
+                            else if (Model.IsOwner)
+                            {
+                                <a href="/Listings/Edit/@Model.Id" class="btn-primary-tl">Edit Listing</a>
+                                <a href="/Listings/Delete/@Model.Id" class="btn-danger-tl">Delete Listing</a>
+                            }
+                            else if (!Model.IsAvailable)
+                            {
+                                <button class="btn-secondary-tl" disabled>Currently Rented</button>
+                            }
                             <a href="#" class="btn-outline-tl" id="messageOwnerBtn">Message Owner</a>
                         </div>
-                        <div class="alert alert-info mt-3" id="demoAlert" style="display:none;">Coming soon: Booking system and messaging!</div>
                     </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="profile-card">
                         <div class="profile-header">
                             <div class="profile-avatar">
-                                @(Model.Owner != null ? Model.Owner.Name?.Substring(0, 1).ToUpper() : "?")
+                                @Model.OwnerAvatar
                             </div>
-                            <h3 class="profile-name">@(Model.Owner?.Name ?? "Unknown Owner")</h3>
-                            <div class="profile-email">@(Model.Owner?.Email ?? "")</div>
+                            <h3 class="profile-name">@Model.OwnerName</h3>
+                            <div class="profile-email">@Model.OwnerEmail</div>
                         </div>
                         <div class="profile-body">
                             <div class="info-row">
                                 <span class="info-label"><i class="bi bi-calendar3"></i> Member since</span>
-                                <span class="info-value">@(Model.Owner?.CreatedAt.ToString("MMMM yyyy") ?? "N/A")</span>
+                                <span class="info-value">@Model.OwnerJoinedAt.ToString("MMMM yyyy")</span>
                             </div>
                             <div class="info-row">
                                 <span class="info-label"><i class="bi bi-star-fill"></i> Rating</span>
-                                <span class="info-value">@(Model.Owner?.Rating.ToString("0.0") ?? "0.0") / 5.0</span>
+                                <span class="info-value">@Model.OwnerRating.ToString("0.0") / 5.0</span>
                             </div>
                             <div class="info-row">
                                 <span class="info-label"><i class="bi bi-geo-alt"></i> Location</span>
-                                <span class="info-value">@(Model.Owner?.Location ?? "Not provided")</span>
+                                <span class="info-value">@Model.OwnerLocation</span>
                             </div>
                         </div>
                     </div>
@@ -161,25 +171,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.getElementById('bookNowBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            let alertDiv = document.getElementById('demoAlert');
-            alertDiv.style.display = 'block';
-            alertDiv.innerHTML = '⚠️ Booking system is not yet active. Coming soon!';
-            setTimeout(() => {
-                alertDiv.style.display = 'none';
-                alertDiv.innerHTML = 'Coming soon: Booking system and messaging!';
-            }, 5000);
-        });
         document.getElementById('messageOwnerBtn').addEventListener('click', function(e) {
             e.preventDefault();
-            let alertDiv = document.getElementById('demoAlert');
-            alertDiv.style.display = 'block';
-            alertDiv.innerHTML = '💬 Messaging system is not yet active. Coming soon!';
-            setTimeout(() => {
-                alertDiv.style.display = 'none';
-                alertDiv.innerHTML = 'Coming soon: Booking system and messaging!';
-            }, 5000);
+            alert('💬 Messaging system will be available soon!');
         });
     </script>
 </body>

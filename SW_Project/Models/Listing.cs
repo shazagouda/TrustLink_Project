@@ -42,5 +42,8 @@ namespace SW_Project.Models
         public Category Category { get; set; }
 
         public ICollection<ListingImage> ListingImages { get; set; } = new List<ListingImage>();
+
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
     }
 }
