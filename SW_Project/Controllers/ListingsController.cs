@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SW_Project.Data;
 using SW_Project.Models;
-using System.IO;
-using System.Linq;
+using SW_Project.ViewModels.Listing;
 
 namespace SW_Project.Controllers
 {
@@ -37,7 +38,7 @@ namespace SW_Project.Controllers
             var query = _context.Listings
                 .Include(l => l.Category)
                 .Include(l => l.ListingImages)
-                .Where(l => l.Status == "Available");
+                .Where(l => l.Status == "Available" && !l.IsDeleted);
 
             if (!string.IsNullOrWhiteSpace(search))
                 query = query.Where(l => l.Title.Contains(search) || l.Description.Contains(search) || l.Location.Contains(search));
@@ -83,100 +84,345 @@ namespace SW_Project.Controllers
                 .Include(l => l.Category)
                 .Include(l => l.Owner)
                 .Include(l => l.ListingImages)
-                .FirstOrDefaultAsync(l => l.Id == id);
+                .FirstOrDefaultAsync(l => l.Id == id && !l.IsDeleted);
+
             if (listing == null)
                 return NotFound();
-            return View(listing);
+
+            // ✅ Fixed: Handle nullable Rating properly
+            double ownerRating = 0;
+            if (listing.Owner != null && listing.Owner.Rating > 0)
+            {
+                ownerRating = (double)listing.Owner.Rating;
+            }
+
+            var viewModel = new ListingDetailsVM
+            {
+                Id = listing.Id,
+                Title = listing.Title,
+                Description = listing.Description,
+                PricePerDay = listing.PricePerDay,
+                Deposit = listing.Deposit,
+                Location = listing.Location,
+                Status = listing.Status,
+                CreatedAt = listing.CreatedAt,
+                CategoryName = listing.Category?.Name ?? "General",
+                CategoryIcon = listing.Category?.Icon ?? "bi-box",
+                OwnerId = listing.OwnerId,
+                OwnerName = listing.Owner?.Name ?? "Unknown",
+                OwnerEmail = listing.Owner?.Email ?? "",
+                OwnerLocation = listing.Owner?.Location ?? "Not provided",
+                OwnerRating = ownerRating,
+                OwnerJoinedAt = listing.Owner?.CreatedAt ?? DateTime.Now,
+                OwnerAvatar = !string.IsNullOrEmpty(listing.Owner?.Name) ? listing.Owner.Name.Substring(0, 1).ToUpper() : "?",
+                ImageUrls = listing.ListingImages?.Select(i => i.ImagePath).ToList() ?? new List<string>(),
+                MainImageUrl = listing.ListingImages?.FirstOrDefault(i => i.IsMain)?.ImagePath ?? listing.ListingImages?.FirstOrDefault()?.ImagePath,
+                IsAvailable = listing.Status == "Available",
+                IsOwner = User.Identity.IsAuthenticated && listing.OwnerId == _userManager.GetUserId(User)
+            };
+
+            return View(viewModel);
         }
 
         public async Task<IActionResult> Create()
         {
-            var categories = await _context.Categories.ToListAsync();
-            ViewBag.Categories = categories;
-            return View();
+            var viewModel = new CreateListingVM
+            {
+                Categories = await _context.Categories
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.Id.ToString(),
+                        Text = c.Name
+                    }).ToListAsync()
+            };
+            return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Listing listing, List<IFormFile> images)
+        public async Task<IActionResult> Create(CreateListingVM viewModel)
         {
-            ModelState.Remove("Category");
-            ModelState.Remove("Owner");
-            ModelState.Remove("ListingImages");
-            ModelState.Remove("OwnerId");
-
-            System.Diagnostics.Debug.WriteLine("===== POST CREATE HIT =====");
-            System.Diagnostics.Debug.WriteLine($"Title: {listing?.Title}");
-            System.Diagnostics.Debug.WriteLine($"CategoryId received: {listing?.CategoryId}");
-            System.Diagnostics.Debug.WriteLine($"ModelState.IsValid after removal: {ModelState.IsValid}");
+            ModelState.Remove("Categories");
 
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-                System.Diagnostics.Debug.WriteLine("ModelState Errors: " + string.Join("; ", errors));
-            }
-
-            if (ModelState.IsValid)
-            {
-                var userId = _userManager.GetUserId(User);
-                listing.OwnerId = userId;
-                listing.Status = "Available";
-                listing.CreatedAt = DateTime.Now;
-
-                _context.Listings.Add(listing);
-                await _context.SaveChangesAsync();
-
-                if (images != null && images.Any())
-                {
-                    string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "listings");
-                    if (!Directory.Exists(uploadsFolder))
-                        Directory.CreateDirectory(uploadsFolder);
-
-                    bool isFirst = true;
-                    foreach (var img in images)
+                viewModel.Categories = await _context.Categories
+                    .Select(c => new SelectListItem
                     {
-                        if (img.Length > 0)
-                        {
-                            string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(img.FileName);
-                            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                            using (var stream = new FileStream(filePath, FileMode.Create))
-                            {
-                                await img.CopyToAsync(stream);
-                            }
-
-                            var listingImage = new ListingImage
-                            {
-                                ImagePath = "/uploads/listings/" + uniqueFileName,
-                                IsMain = isFirst,
-                                ListingId = listing.Id
-                            };
-                            _context.ListingImages.Add(listingImage);
-                            isFirst = false;
-                        }
-                    }
-                    await _context.SaveChangesAsync();
-                }
-
-                TempData["Success"] = "Your listing has been posted!";
-                return RedirectToAction("Details", new { id = listing.Id });
+                        Value = c.Id.ToString(),
+                        Text = c.Name
+                    }).ToListAsync();
+                return View(viewModel);
             }
 
-            var categories = await _context.Categories.ToListAsync();
-            ViewBag.Categories = categories;
-            return View(listing);
+            var userId = _userManager.GetUserId(User);
+
+            var listing = new Models.Listing
+            {
+                Title = viewModel.Title,
+                Description = viewModel.Description,
+                PricePerDay = viewModel.PricePerDay,
+                Deposit = viewModel.Deposit,
+                Location = viewModel.Location,
+                CategoryId = viewModel.CategoryId,
+                OwnerId = userId,
+                Status = "Available",
+                CreatedAt = DateTime.Now,
+                IsDeleted = false
+            };
+
+            _context.Listings.Add(listing);
+            await _context.SaveChangesAsync();
+
+            // Save images
+            if (viewModel.Images != null && viewModel.Images.Any())
+            {
+                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "listings");
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                bool isFirst = true;
+                foreach (var img in viewModel.Images)
+                {
+                    if (img.Length > 0)
+                    {
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(img.FileName);
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await img.CopyToAsync(stream);
+                        }
+
+                        var listingImage = new ListingImage
+                        {
+                            ImagePath = "/uploads/listings/" + uniqueFileName,
+                            IsMain = isFirst,
+                            ListingId = listing.Id
+                        };
+                        _context.ListingImages.Add(listingImage);
+                        isFirst = false;
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["Success"] = "Your listing has been posted!";
+            return RedirectToAction("Details", new { id = listing.Id });
         }
 
         [Authorize]
         public async Task<IActionResult> MyListings()
         {
             var userId = _userManager.GetUserId(User);
-            var myListings = await _context.Listings
+            var listings = await _context.Listings
                 .Include(l => l.Category)
                 .Include(l => l.ListingImages)
-                .Where(l => l.OwnerId == userId)
+                .Where(l => l.OwnerId == userId && !l.IsDeleted)
                 .OrderByDescending(l => l.CreatedAt)
                 .ToListAsync();
-            return View(myListings);
+
+            var viewModel = new MyListingsVM
+            {
+                Listings = listings.Select(l => new ListingCardVM
+                {
+                    Id = l.Id,
+                    Title = l.Title,
+                    Location = l.Location,
+                    PricePerDay = l.PricePerDay,
+                    Status = l.Status,
+                    Deposit = l.Deposit,
+                    CreatedAt = l.CreatedAt,
+                    CategoryName = l.Category?.Name,
+                    CategoryIcon = l.Category?.Icon ?? "bi-box",
+                    MainImageUrl = l.ListingImages?.FirstOrDefault(i => i.IsMain)?.ImagePath ?? l.ListingImages?.FirstOrDefault()?.ImagePath
+                }).ToList(),
+                TotalCount = listings.Count
+            };
+
+            return View(viewModel);
+        }
+
+        // GET: Delete confirmation
+        [Authorize]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+            var listing = await _context.Listings
+                .Include(l => l.Category)
+                .Include(l => l.ListingImages)
+                .FirstOrDefaultAsync(l => l.Id == id && l.OwnerId == userId);
+
+            if (listing == null)
+            {
+                TempData["Error"] = "Listing not found or you don't have permission.";
+                return RedirectToAction(nameof(MyListings));
+            }
+
+            var viewModel = new ListingCardVM
+            {
+                Id = listing.Id,
+                Title = listing.Title,
+                Location = listing.Location,
+                PricePerDay = listing.PricePerDay,
+                Status = listing.Status,
+                Deposit = listing.Deposit,
+                CreatedAt = listing.CreatedAt,
+                CategoryName = listing.Category?.Name,
+                MainImageUrl = listing.ListingImages?.FirstOrDefault()?.ImagePath
+            };
+
+            return View(viewModel);
+        }
+
+        // POST: Soft Delete
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+            var listing = await _context.Listings
+                .FirstOrDefaultAsync(l => l.Id == id && l.OwnerId == userId);
+
+            if (listing == null)
+            {
+                TempData["Error"] = "Listing not found or you don't have permission.";
+                return RedirectToAction(nameof(MyListings));
+            }
+
+            listing.Status = "Hidden";
+            listing.IsDeleted = true;
+            listing.DeletedAt = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Your listing has been deleted successfully.";
+            return RedirectToAction(nameof(MyListings));
+        }
+
+
+
+        // ========== EDIT ACTIONS ==========
+
+        // GET: عرض صفحة تعديل الـ Listing
+        [Authorize]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+            var listing = await _context.Listings
+                .Include(l => l.Category)
+                .Include(l => l.ListingImages)
+                .FirstOrDefaultAsync(l => l.Id == id && l.OwnerId == userId);
+
+            if (listing == null)
+            {
+                TempData["Error"] = "Listing not found or you don't have permission.";
+                return RedirectToAction(nameof(MyListings));
+            }
+
+            // تحويل Listing → EditListingVM
+            var viewModel = new EditListingVM
+            {
+                Id = listing.Id,
+                Title = listing.Title,
+                Description = listing.Description,
+                PricePerDay = listing.PricePerDay,
+                Deposit = listing.Deposit,
+                Location = listing.Location,
+                CategoryId = listing.CategoryId,
+                Status = listing.Status,
+                ExistingImages = listing.ListingImages?.Select(i => i.ImagePath).ToList() ?? new List<string>(),
+                Categories = await _context.Categories
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.Id.ToString(),
+                        Text = c.Name,
+                        Selected = c.Id == listing.CategoryId
+                    }).ToListAsync()
+            };
+
+            return View(viewModel);
+        }
+
+        // POST: تحديث الـ Listing
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> Edit(int id, EditListingVM viewModel)
+        {
+            if (id != viewModel.Id)
+            {
+                return NotFound();
+            }
+
+            var userId = _userManager.GetUserId(User);
+            var listing = await _context.Listings
+                .Include(l => l.ListingImages)
+                .FirstOrDefaultAsync(l => l.Id == id && l.OwnerId == userId);
+
+            if (listing == null)
+            {
+                TempData["Error"] = "Listing not found or you don't have permission.";
+                return RedirectToAction(nameof(MyListings));
+            }
+
+            ModelState.Remove("Categories");
+            ModelState.Remove("ExistingImages");
+
+            if (!ModelState.IsValid)
+            {
+                viewModel.Categories = await _context.Categories
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.Id.ToString(),
+                        Text = c.Name,
+                        Selected = c.Id == viewModel.CategoryId
+                    }).ToListAsync();
+                return View(viewModel);
+            }
+
+            // تحديث البيانات
+            listing.Title = viewModel.Title;
+            listing.Description = viewModel.Description;
+            listing.PricePerDay = viewModel.PricePerDay;
+            listing.Deposit = viewModel.Deposit;
+            listing.Location = viewModel.Location;
+            listing.CategoryId = viewModel.CategoryId;
+            listing.Status = viewModel.Status;
+
+            // حفظ الصور الجديدة إن وجدت
+            if (viewModel.NewImages != null && viewModel.NewImages.Any())
+            {
+                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "listings");
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                foreach (var img in viewModel.NewImages)
+                {
+                    if (img.Length > 0)
+                    {
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(img.FileName);
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await img.CopyToAsync(stream);
+                        }
+
+                        var listingImage = new ListingImage
+                        {
+                            ImagePath = "/uploads/listings/" + uniqueFileName,
+                            IsMain = !listing.ListingImages.Any(), // أول صورة تكون الرئيسية
+                            ListingId = listing.Id
+                        };
+                        _context.ListingImages.Add(listingImage);
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Your listing has been updated successfully!";
+            return RedirectToAction("Details", new { id = listing.Id });
         }
     }
 }
