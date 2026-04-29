@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -7,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using SW_Project.Data;
 using SW_Project.Models;
 using SW_Project.ViewModels.Listing;
+using System.Collections.Generic;   // ✅ أضيف لاستخدام List<int>
 
 namespace SW_Project.Controllers
 {
@@ -73,6 +73,21 @@ namespace SW_Project.Controllers
             ViewBag.MaxPrice = maxPrice;
             ViewBag.Sort = sort;
             ViewBag.Categories = categories;
+
+            // ✅ إضافة قائمة المفضلة للمستخدم الحالي
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = _userManager.GetUserId(User);
+                var favoritedIds = await _context.Favorites
+                    .Where(f => f.UserId == userId)
+                    .Select(f => f.ListingId)
+                    .ToListAsync();
+                ViewBag.FavoritedIds = favoritedIds;
+            }
+            else
+            {
+                ViewBag.FavoritedIds = new List<int>();
+            }
 
             return View(listings);
         }
@@ -300,8 +315,6 @@ namespace SW_Project.Controllers
             return RedirectToAction(nameof(MyListings));
         }
 
-
-
         // ========== EDIT ACTIONS ==========
 
         // GET: عرض صفحة تعديل الـ Listing
@@ -320,7 +333,6 @@ namespace SW_Project.Controllers
                 return RedirectToAction(nameof(MyListings));
             }
 
-            // تحويل Listing → EditListingVM
             var viewModel = new EditListingVM
             {
                 Id = listing.Id,
@@ -381,7 +393,6 @@ namespace SW_Project.Controllers
                 return View(viewModel);
             }
 
-            // تحديث البيانات
             listing.Title = viewModel.Title;
             listing.Description = viewModel.Description;
             listing.PricePerDay = viewModel.PricePerDay;
@@ -390,7 +401,6 @@ namespace SW_Project.Controllers
             listing.CategoryId = viewModel.CategoryId;
             listing.Status = viewModel.Status;
 
-            // حفظ الصور الجديدة إن وجدت
             if (viewModel.NewImages != null && viewModel.NewImages.Any())
             {
                 string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "listings");
@@ -411,7 +421,7 @@ namespace SW_Project.Controllers
                         var listingImage = new ListingImage
                         {
                             ImagePath = "/uploads/listings/" + uniqueFileName,
-                            IsMain = !listing.ListingImages.Any(), // أول صورة تكون الرئيسية
+                            IsMain = !listing.ListingImages.Any(),
                             ListingId = listing.Id
                         };
                         _context.ListingImages.Add(listingImage);

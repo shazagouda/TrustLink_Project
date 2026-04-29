@@ -15,17 +15,9 @@
     <link rel="stylesheet" href="~/css/style.css">
     <style>
         @@keyframes skeleton-pulse {
-            0% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
-
-            100% {
-                opacity: 1;
-            }
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
     </style>
 </head>
@@ -36,6 +28,7 @@
         {
             <a href="/Listings/Create" class="btn-post-listing">+ Post Listing</a>
             <a href="/Listings/MyListings" class="nav-link-custom">My Listings</a>
+            <a href="/Favorites" class="nav-link-custom">Favorites</a>
             <a href="/Bookings/MyBookings" class="nav-link-custom">My Bookings</a>
             <a href="/Bookings/ReceivedBookings" class="nav-link-custom">Received Bookings</a>
             <a href="/Account/Profile" class="nav-link-custom">Profile</a>
@@ -110,8 +103,6 @@
                                 <span class="filter-group-label">Location</span>
                                 <input type="text" name="location" class="price-input-field" placeholder="City or area" value="@ViewBag.Location" style="width:100%;">
                             </div>
-                            <!-- Hidden filters -->
-                            <div class="filter-group" style="display:none;">...</div>
                             <input type="hidden" name="search" value="@ViewBag.Search">
                             <input type="hidden" name="category" value="@ViewBag.SelectedCategory">
                             <input type="hidden" name="sort" id="sortHidden" value="@ViewBag.Sort">
@@ -143,14 +134,15 @@
                         }
                         else
                         {
+                    
+                            var favoritedIds = ViewBag.FavoritedIds as List<int> ?? new List<int>();
                             foreach (var listing in Model)
                             {
+                                var firstImage = listing.ListingImages?.FirstOrDefault();
+                                var isFav = favoritedIds.Contains(listing.Id);
                                 <div class="col-md-6 col-xl-4 listing-col">
                                     <div class="listing-card">
                                         <div class="listing-card-image">
-                                            @{
-                                                var firstImage = listing.ListingImages?.FirstOrDefault();
-                                            }
                                             @if (firstImage != null)
                                             {
                                                 <img src="@firstImage.ImagePath" alt="@listing.Title" style="width:100%; height:100%; object-fit:cover;">
@@ -162,7 +154,9 @@
                                                 </div>
                                             }
                                             <span class="listing-card-category">@(listing.Category?.Name ?? "General")</span>
-                                            <button class="listing-card-favorite" data-id="@listing.Id"><i class="bi bi-heart"></i></button>
+                                            <button class="listing-card-favorite" data-id="@listing.Id">
+                                                <i class="bi @(isFav ? "bi-heart-fill" : "bi-heart")"></i>
+                                            </button>
                                         </div>
                                         <div class="listing-card-body">
                                             <div class="listing-card-title">@listing.Title</div>
@@ -193,11 +187,31 @@
         </div>
     </section>
 
-    <footer class="tl-footer">... (نفس المحتوى السابق) ...</footer>
+    <footer class="tl-footer">...</footer>
     <button id="back-to-top">...</button>
+
+    @* ✅ إضافة AntiForgeryToken لطلبات AJAX *@
+    @Html.AntiForgeryToken()
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/script.js"></script>
     <script>
+        function showToast(msg, icon = 'bi-check-circle-fill') {
+            let existing = document.querySelector('.tl-toast');
+            if (existing) existing.remove();
+            const t = document.createElement('div');
+            t.className = 'tl-toast';
+            t.innerHTML = `<i class="bi ${icon}"></i><span>${msg}</span>`;
+            document.body.appendChild(t);
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => t.classList.add('show'));
+            });
+            setTimeout(() => {
+                t.classList.remove('show');
+                setTimeout(() => t.remove(), 400);
+            }, 3500);
+        }
+
         document.getElementById('sortSelect')?.addEventListener('change', function() {
             document.getElementById('sortHidden').value = this.value;
             document.getElementById('filterForm').submit();
@@ -208,6 +222,42 @@
         window.addEventListener('scroll', () => {
             const btn = document.getElementById('back-to-top');
             if (btn) btn.style.opacity = window.scrollY > 400 ? '1' : '0';
+        });
+
+        document.querySelectorAll('.listing-card-favorite').forEach(btn => {
+            btn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const listingId = this.dataset.id;
+                const icon = this.querySelector('i');
+                const isFav = icon.classList.contains('bi-heart-fill');
+                const url = isFav ? '/Favorites/Remove' : '/Favorites/Add';
+                const formData = new FormData();
+                formData.append('listingId', listingId);
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                if (!token) {
+                    console.error('Anti-forgery token not found');
+                    return;
+                }
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': token },
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    if (isFav) {
+                        icon.classList.remove('bi-heart-fill');
+                        icon.classList.add('bi-heart');
+                    } else {
+                        icon.classList.remove('bi-heart');
+                        icon.classList.add('bi-heart-fill');
+                    }
+                    showToast(result.message);
+                } else {
+                    showToast(result.message, 'bi-x-circle');
+                }
+            });
         });
     </script>
 </body>
