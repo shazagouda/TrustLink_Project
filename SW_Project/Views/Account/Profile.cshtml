@@ -14,411 +14,427 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --navy: #0f1f3d;
-            --navy-mid: #1a3260;
-            --navy-light: #243d75;
-            --gold: #c9a84c;
-            --gold-light: #e0c47a;
-            --gold-pale: #f5edd8;
-            --ivory: #faf8f3;
-            --ivory-dark: #f0ead8;
-            --slate: #5a6a82;
-            --slate-light: #8fa0b8;
-            --white: #ffffff;
-            --text-dark: #0f1f3d;
-            --text-body: #3a4a5c;
-            --text-muted: #7a8a9c;
-            --border: rgba(15,31,61,0.12);
-            --shadow-sm: 0 2px 12px rgba(15,31,61,0.08);
-            --shadow-md: 0 8px 32px rgba(15,31,61,0.12);
-            --radius-sm: 6px;
-            --radius-md: 12px;
-            --radius-lg: 20px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background-color: var(--ivory);
-            color: var(--text-body);
-            line-height: 1.7;
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Cormorant Garamond', serif;
-            color: var(--text-dark);
-            font-weight: 600;
-        }
-
-        /* Navbar */
-        .tl-navbar {
-            background: rgba(255,255,255,0.97);
-            padding: 0.85rem 0;
-            box-shadow: var(--shadow-sm);
-            border-bottom: 1px solid var(--border);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-        }
-
-            .tl-navbar .navbar-brand {
-                font-family: 'Cormorant Garamond', serif;
-                font-size: 1.65rem;
-                font-weight: 700;
-                color: #0a0f1f;
+            :root {
+                --navy: #0f1f3d;
+                --navy-mid: #1a3260;
+                --navy-light: #243d75;
+                --gold: #c9a84c;
+                --gold-light: #e0c47a;
+                --gold-pale: #f5edd8;
+                --ivory: #faf8f3;
+                --ivory-dark: #f0ead8;
+                --slate: #5a6a82;
+                --slate-light: #8fa0b8;
+                --white: #ffffff;
+                --text-dark: #0f1f3d;
+                --text-body: #3a4a5c;
+                --text-muted: #7a8a9c;
+                --border: rgba(15,31,61,0.12);
+                --shadow-sm: 0 2px 12px rgba(15,31,61,0.08);
+                --shadow-md: 0 8px 32px rgba(15,31,61,0.12);
+                --radius-sm: 6px;
+                --radius-md: 12px;
+                --radius-lg: 20px;
+                --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
-                .tl-navbar .navbar-brand span {
-                    color: var(--gold);
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'DM Sans', sans-serif;
+                background-color: var(--ivory);
+                color: var(--text-body);
+                line-height: 1.7;
+            }
+
+            h1, h2, h3, h4, h5, h6 {
+                font-family: 'Cormorant Garamond', serif;
+                color: var(--text-dark);
+                font-weight: 600;
+            }
+
+            /* Navbar */
+            .tl-navbar {
+                background: rgba(255,255,255,0.97);
+                padding: 0.85rem 0;
+                box-shadow: var(--shadow-sm);
+                border-bottom: 1px solid var(--border);
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+            }
+
+                .tl-navbar .navbar-brand {
+                    font-family: 'Cormorant Garamond', serif;
+                    font-size: 1.65rem;
+                    font-weight: 700;
+                    color: #0a0f1f;
                 }
 
-            .tl-navbar .nav-link {
+                    .tl-navbar .navbar-brand span {
+                        color: var(--gold);
+                    }
+
+                .tl-navbar .nav-link {
+                    font-family: 'DM Sans', sans-serif;
+                    font-size: 0.88rem;
+                    font-weight: 500;
+                    color: var(--navy) !important;
+                    padding: 0.4rem 1rem !important;
+                }
+
+            .btn-nav-cta {
                 font-family: 'DM Sans', sans-serif;
-                font-size: 0.88rem;
-                font-weight: 500;
-                color: var(--navy) !important;
-                padding: 0.4rem 1rem !important;
+                font-size: 0.85rem;
+                font-weight: 600;
+                padding: 0.55rem 1.5rem !important;
+                background: var(--navy);
+                color: var(--white) !important;
+                border-radius: var(--radius-sm);
             }
 
-        .btn-nav-cta {
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 600;
-            padding: 0.55rem 1.5rem !important;
-            background: var(--navy);
-            color: var(--white) !important;
-            border-radius: var(--radius-sm);
-        }
+                .btn-nav-cta:hover {
+                    background: var(--gold);
+                    color: var(--navy) !important;
+                }
 
-            .btn-nav-cta:hover {
-                background: var(--gold);
-                color: var(--navy) !important;
-            }
-
-        /* Page Hero */
-        .page-hero {
-            background: var(--navy);
-            padding: 9rem 0 5rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-            .page-hero::before {
-                content: '';
-                position: absolute;
-                inset: 0;
-                background-image: linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
-                background-size: 60px 60px;
-            }
-
-            .page-hero .container {
+            /* Page Hero */
+            .page-hero {
+                background: var(--navy);
+                padding: 9rem 0 5rem;
                 position: relative;
-                z-index: 2;
+                overflow: hidden;
             }
 
-        .page-hero-eyebrow {
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--gold);
-            margin-bottom: 1rem;
-            display: block;
-        }
+                .page-hero::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background-image: linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+                    background-size: 60px 60px;
+                }
 
-        .page-hero-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            font-weight: 400;
-            color: var(--ivory);
-        }
+                .page-hero .container {
+                    position: relative;
+                    z-index: 2;
+                }
 
-        /* Profile Card */
-        .profile-section {
-            padding: 4rem 0;
-        }
-
-        .profile-card {
-            background: var(--white);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            overflow: hidden;
-            margin-bottom: 2rem;
-        }
-
-        .profile-header {
-            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
-            padding: 2.5rem;
-            text-align: center;
-            color: white;
-        }
-
-        .profile-avatar {
-            width: 120px;
-            height: 120px;
-            background: var(--gold);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--navy);
-            margin: 0 auto 1rem;
-            font-family: 'Cormorant Garamond', serif;
-            border: 4px solid var(--gold-light);
-        }
-
-        .profile-name {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .profile-email {
-            font-size: 0.95rem;
-            opacity: 0.8;
-        }
-
-        .profile-body {
-            padding: 2rem;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-            .info-label i {
+            .page-hero-eyebrow {
+                font-size: 0.72rem;
+                font-weight: 700;
+                letter-spacing: 0.18em;
+                text-transform: uppercase;
                 color: var(--gold);
-                width: 24px;
-            }
-
-        .info-value {
-            color: var(--text-body);
-        }
-
-        .stat-card {
-            background: var(--ivory);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 1.5rem;
-            text-align: center;
-            transition: var(--transition);
-            height: 100%;
-        }
-
-            .stat-card:hover {
-                transform: translateY(-4px);
-                box-shadow: var(--shadow-md);
-                border-color: rgba(201,168,76,0.3);
-            }
-
-        .stat-number {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--gold);
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text-muted);
-            margin-top: 0.5rem;
-        }
-
-        .btn-edit {
-            background: var(--navy);
-            color: white;
-            border: none;
-            padding: 0.6rem 1.5rem;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            transition: var(--transition);
-        }
-
-            .btn-edit:hover {
-                background: var(--gold);
-                color: var(--navy);
-            }
-
-        .btn-logout {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 0.6rem 1.5rem;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            transition: var(--transition);
-        }
-
-            .btn-logout:hover {
-                background: #e74c3c;
-                color: white;
-                border-color: #e74c3c;
-            }
-
-        .section-title-sm {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--navy);
-            margin-bottom: 1.5rem;
-        }
-
-        .listing-card {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            transition: var(--transition);
-            height: 100%;
-        }
-
-            .listing-card:hover {
-                transform: translateY(-4px);
-                box-shadow: var(--shadow-md);
-            }
-
-        .listing-card-image {
-            height: 160px;
-            overflow: hidden;
-            position: relative;
-        }
-
-            .listing-card-image img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-
-        .listing-card-image-placeholder {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--ivory-dark);
-            color: var(--slate-light);
-            font-size: 2rem;
-        }
-
-        .listing-card-body {
-            padding: 1rem;
-        }
-
-        .listing-card-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--navy);
-            margin-bottom: 0.25rem;
-        }
-
-        .listing-card-location {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-        }
-
-        .listing-card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 0.5rem;
-        }
-
-        .listing-card-price {
-            font-weight: 700;
-            color: var(--gold);
-        }
-
-        .listing-card-btn {
-            background: var(--navy);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: var(--radius-sm);
-            font-size: 0.75rem;
-            text-decoration: none;
-        }
-
-            .listing-card-btn:hover {
-                background: var(--gold);
-                color: var(--navy);
-            }
-
-        /* Tabs */
-        .tl-tabs {
-            display: flex;
-            gap: 0.5rem;
-            border-bottom: 2px solid var(--border);
-            margin-bottom: 1.5rem;
-        }
-
-        .tl-tab-btn {
-            background: none;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 600;
-            color: var(--text-muted);
-            transition: var(--transition);
-            cursor: pointer;
-        }
-
-            .tl-tab-btn.active {
-                color: var(--gold);
-                border-bottom: 2px solid var(--gold);
-                margin-bottom: -2px;
-            }
-
-        .tl-tab-pane {
-            display: none;
-        }
-
-            .tl-tab-pane.active {
+                margin-bottom: 1rem;
                 display: block;
             }
 
-        footer {
-            background: #0a1628;
-            padding: 2rem 0;
-            text-align: center;
-            color: rgba(250,248,243,0.4);
-            font-size: 0.85rem;
-        }
+            .page-hero-title {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: clamp(2.5rem, 5vw, 4rem);
+                font-weight: 400;
+                color: var(--ivory);
+            }
 
-        .booking-card {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
+            /* Profile Card */
+            .profile-section {
+                padding: 4rem 0;
+            }
+
+            .profile-card {
+                background: var(--white);
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow-md);
+                overflow: hidden;
+                margin-bottom: 2rem;
+            }
+
+            .profile-header {
+                background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+                padding: 2.5rem;
+                text-align: center;
+                color: white;
+            }
+
+            .profile-avatar {
+                width: 120px;
+                height: 120px;
+                background: var(--gold);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 3rem;
+                font-weight: 700;
+                color: var(--navy);
+                margin: 0 auto 1rem;
+                font-family: 'Cormorant Garamond', serif;
+                border: 4px solid var(--gold-light);
+            }
+
+            .profile-name {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 2rem;
+                font-weight: 600;
+                margin-bottom: 0.25rem;
+            }
+
+            .profile-email {
+                font-size: 0.95rem;
+                opacity: 0.8;
+            }
+
+            .profile-body {
+                padding: 2rem;
+            }
+
+            .info-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .info-label {
+                font-weight: 600;
+                color: var(--text-dark);
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+                .info-label i {
+                    color: var(--gold);
+                    width: 24px;
+                }
+
+            .info-value {
+                color: var(--text-body);
+            }
+
+            .stat-card {
+                background: var(--ivory);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-md);
+                padding: 1.5rem;
+                text-align: center;
+                transition: var(--transition);
+                height: 100%;
+                text-decoration: none;
+                display: block;
+            }
+
+                .stat-card:hover {
+                    transform: translateY(-4px);
+                    box-shadow: var(--shadow-md);
+                    border-color: rgba(201,168,76,0.3);
+                }
+
+            .stat-number {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: var(--gold);
+            }
+
+            .stat-label {
+                font-size: 0.85rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: var(--text-muted);
+                margin-top: 0.5rem;
+            }
+
+            .btn-edit {
+                background: var(--navy);
+                color: white;
+                border: none;
+                padding: 0.6rem 1.5rem;
+                border-radius: var(--radius-sm);
+                font-weight: 600;
+                transition: var(--transition);
+            }
+
+                .btn-edit:hover {
+                    background: var(--gold);
+                    color: var(--navy);
+                }
+
+            .btn-logout {
+                background: transparent;
+                border: 1px solid var(--border);
+                color: var(--text-muted);
+                padding: 0.6rem 1.5rem;
+                border-radius: var(--radius-sm);
+                font-weight: 600;
+                transition: var(--transition);
+            }
+
+                .btn-logout:hover {
+                    background: #e74c3c;
+                    color: white;
+                    border-color: #e74c3c;
+                }
+
+            .section-title-sm {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: var(--navy);
+                margin-bottom: 1.5rem;
+            }
+
+            .listing-card {
+                background: var(--white);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-md);
+                overflow: hidden;
+                transition: var(--transition);
+                height: 100%;
+            }
+
+                .listing-card:hover {
+                    transform: translateY(-4px);
+                    box-shadow: var(--shadow-md);
+                }
+
+            .listing-card-image {
+                height: 160px;
+                overflow: hidden;
+                position: relative;
+            }
+
+                .listing-card-image img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+            .listing-card-image-placeholder {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: var(--ivory-dark);
+                color: var(--slate-light);
+                font-size: 2rem;
+            }
+
+            .listing-card-body {
+                padding: 1rem;
+            }
+
+            .listing-card-title {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 1rem;
+                font-weight: 600;
+                color: var(--navy);
+                margin-bottom: 0.25rem;
+            }
+
+            .listing-card-location {
+                font-size: 0.75rem;
+                color: var(--text-muted);
+                margin-bottom: 0.5rem;
+            }
+
+            .listing-card-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 0.5rem;
+            }
+
+            .listing-card-price {
+                font-weight: 700;
+                color: var(--gold);
+            }
+
+            .listing-card-btn {
+                background: var(--navy);
+                color: white;
+                padding: 0.25rem 0.75rem;
+                border-radius: var(--radius-sm);
+                font-size: 0.75rem;
+                text-decoration: none;
+            }
+
+                .listing-card-btn:hover {
+                    background: var(--gold);
+                    color: var(--navy);
+                }
+
+            /* Tabs */
+            .tl-tabs {
+                display: flex;
+                gap: 0.5rem;
+                border-bottom: 2px solid var(--border);
+                margin-bottom: 1.5rem;
+            }
+
+            .tl-tab-btn {
+                background: none;
+                border: none;
+                padding: 0.75rem 1.5rem;
+                font-family: 'DM Sans', sans-serif;
+                font-weight: 600;
+                color: var(--text-muted);
+                transition: var(--transition);
+                cursor: pointer;
+            }
+
+                .tl-tab-btn.active {
+                    color: var(--gold);
+                    border-bottom: 2px solid var(--gold);
+                    margin-bottom: -2px;
+                }
+
+            .tl-tab-pane {
+                display: none;
+            }
+
+                .tl-tab-pane.active {
+                    display: block;
+                }
+
+            footer {
+                background: #0a1628;
+                padding: 2rem 0;
+                text-align: center;
+                color: rgba(250,248,243,0.4);
+                font-size: 0.85rem;
+            }
+
+            .booking-card {
+                background: var(--white);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-md);
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .btn-primary-tl {
+                background: var(--navy);
+                color: white;
+                padding: 0.5rem 1rem;
+                border-radius: var(--radius-sm);
+                text-decoration: none;
+                display: inline-block;
+            }
+
+                .btn-primary-tl:hover {
+                    background: var(--gold);
+                    color: var(--navy);
+                }
     </style>
 </head>
 <body>
@@ -436,6 +452,7 @@
                     <li class="nav-item"><a class="nav-link" href="/Listings">Browse</a></li>
                     <li class="nav-item"><a class="nav-link" href="/Listings/MyListings">My Listings</a></li>
                     <li class="nav-item"><a href="/Favorites" class="nav-link">Favorites</a></li>
+                    <li class="nav-item"><a href="/Messages/Inbox" class="nav-link"><i class="bi bi-envelope"></i> Messages</a></li>
                     <li class="nav-item"><a class="btn-nav-cta" href="/Account/Logout">Sign Out</a></li>
                     <li class="nav-item"><a href="/Dashboard" class="nav-link">Dashboard</a></li>
                 </ul>
@@ -516,6 +533,15 @@
                                 <div class="stat-number">@Model.FavoritesCount</div>
                                 <div class="stat-label">Favorites</div>
                             </div>
+                        </div>
+                        <!-- إضافة زر الرسائل الجديد -->
+                        <div class="col-md-3">
+                            <a href="/Messages/Inbox" class="stat-card" style="text-decoration: none;">
+                                <div class="stat-number">
+                                    <i class="bi bi-envelope" style="font-size: 2rem; color: var(--gold);"></i>
+                                </div>
+                                <div class="stat-label">Messages</div>
+                            </a>
                         </div>
                     </div>
 
@@ -706,18 +732,18 @@
     <script>
         // Tab switching functionality
         document.querySelectorAll('.tl-tab-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Remove active class from all tabs
-                document.querySelectorAll('.tl-tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tl-tab-pane').forEach(p => p.classList.remove('active'));
+        btn.addEventListener('click', function() {
+        // Remove active class from all tabs
+        document.querySelectorAll('.tl-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tl-tab-pane').forEach(p => p.classList.remove('active'));
 
-                // Add active class to clicked tab
-                this.classList.add('active');
+        // Add active class to clicked tab
+        this.classList.add('active');
 
-                // Show corresponding pane
-                const tabId = this.getAttribute('data-tab');
-                document.getElementById(`tab-${tabId}`).classList.add('active');
-            });
+        // Show corresponding pane
+        const tabId = this.getAttribute('data-tab');
+        document.getElementById(`tab-${tabId}`).classList.add('active');
+        });
         });
     </script>
 </body>

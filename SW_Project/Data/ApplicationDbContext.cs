@@ -25,5 +25,43 @@ namespace SW_Project.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<ItemAvailability> ItemAvailabilities { get; set; }
         public DbSet<ContactMessage> ContactMessages { get; set; }
+        public DbSet<Conversation> Conversations { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            // ========== منع Cascade Delete في المحادثات ==========
+            builder.Entity<Conversation>()
+                .HasOne(c => c.ParticipantA)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Conversation>()
+                .HasOne(c => c.ParticipantB)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Conversation>()
+                .HasOne(c => c.Listing)
+                .WithMany()
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // ========== منع Cascade Delete في الرسائل ==========
+            builder.Entity<Message>()
+                .HasOne(m => m.Sender)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Message>()
+                .HasOne(m => m.Receiver)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Message>()
+                .HasOne(m => m.Conversation)
+                .WithMany(c => c.Messages)
+                .OnDelete(DeleteBehavior.Cascade);  // ده مسموح لأن Conversation لما يتشال، رسايله تتشال
+        }
     }
 }

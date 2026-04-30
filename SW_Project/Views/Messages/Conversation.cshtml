@@ -1,0 +1,333 @@
+﻿@using SW_Project.ViewModels.Message
+@model ConversationVM
+@{
+    ViewData["Title"] = $"Chat with {Model.OtherUserName} - TrustLink";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0f1f3d;
+            --gold: #c9a84c;
+            --ivory: #faf8f3;
+            --white: #ffffff;
+            --border: rgba(15,31,61,0.12);
+            --shadow-sm: 0 2px 12px rgba(15,31,61,0.08);
+            --radius-sm: 6px;
+            --radius-md: 12px;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--ivory);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tl-navbar {
+            background: rgba(255,255,255,0.97);
+            padding: 0.85rem 0;
+            box-shadow: var(--shadow-sm);
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+            .tl-navbar .navbar-brand {
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 1.65rem;
+                font-weight: 700;
+                color: #0a0f1f;
+            }
+
+                .tl-navbar .navbar-brand span {
+                    color: var(--gold);
+                }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-top: 80px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+            padding: 1rem;
+        }
+
+        .chat-header {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--navy);
+        }
+
+        .chat-listing-info {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-left: 3px solid var(--gold);
+        }
+
+        .listing-thumb {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+        }
+
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: var(--white);
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            min-height: 300px;
+            max-height: calc(100vh - 300px);
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .message-sent {
+            justify-content: flex-end;
+        }
+
+        .message-received {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            position: relative;
+        }
+
+        .message-sent .message-bubble {
+            background: var(--navy);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-received .message-bubble {
+            background: var(--ivory);
+            color: var(--navy);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.65rem;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .message-sent .message-time {
+            text-align: right;
+        }
+
+        .message-input-area {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 0.75rem;
+            display: flex;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .message-input {
+            flex: 1;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem;
+            resize: none;
+            font-family: inherit;
+        }
+
+            .message-input:focus {
+                outline: none;
+                border-color: var(--gold);
+            }
+
+        .btn-send {
+            background: var(--gold);
+            color: var(--navy);
+            border: none;
+            padding: 0 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+        }
+
+            .btn-send:hover {
+                background: #b8942e;
+            }
+
+        .btn-back {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            color: var(--navy);
+        }
+
+        footer {
+            background: #0a1628;
+            padding: 1rem 0;
+            text-align: center;
+            color: rgba(250,248,243,0.4);
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="tl-navbar navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">Trust<span>Link</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-2">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Listings">Browse</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Listings/MyListings">My Listings</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/Messages/Inbox">Messages</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Account/Profile">Profile</a></li>
+                    <li class="nav-item"><a class="btn-nav-cta" href="/Account/Logout">Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <a href="/Messages/Inbox" class="btn-back">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            <div class="chat-avatar">@Model.OtherUserAvatar</div>
+            <div>
+                <h5 class="mb-0">@Model.OtherUserName</h5>
+            </div>
+        </div>
+
+        @if (Model.ListingId.HasValue)
+        {
+            <div class="chat-listing-info">
+                @if (!string.IsNullOrEmpty(Model.ListingImageUrl))
+                {
+                    <img src="@Model.ListingImageUrl" class="listing-thumb" alt="@Model.ListingTitle">
+                }
+                else
+                {
+                    <div class="listing-thumb bg-light d-flex align-items-center justify-content-center">
+                        <i class="bi bi-box"></i>
+                    </div>
+                }
+                <div>
+                    <small class="text-muted">Regarding:</small>
+                    <div><strong>@Model.ListingTitle</strong></div>
+                </div>
+            </div>
+        }
+
+        <div class="messages-area" id="messagesArea">
+            @if (Model.Messages != null && Model.Messages.Any())
+            {
+                foreach (var msg in Model.Messages)
+                {
+                    <div class="message @(msg.IsFromCurrentUser ? "message-sent" : "message-received")">
+                        <div class="message-bubble">
+                            @msg.Text
+                            <span class="message-time">
+                                @msg.SentAt.ToString("hh:mm tt")
+                                @if (msg.IsFromCurrentUser && msg.IsRead)
+                                {
+                                    <i class="bi bi-check2-all ms-1"></i>
+                                }
+                            </span>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-chat" style="font-size: 2rem;"></i>
+                    <p class="mt-2">No messages yet. Send a message to start the conversation!</p>
+                </div>
+            }
+        </div>
+
+        <form method="post" asp-action="SendMessage" class="message-input-area">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="ReceiverId" value="@Model.OtherUserId" />
+            <input type="hidden" name="ListingId" value="@Model.ListingId" />
+    
+            <textarea name="Text" 
+                class="message-input" 
+                rows="2" 
+                placeholder="Type your message..." 
+                required></textarea>
+              
+           <button type="submit" class="btn-send">
+              <i class="bi bi-send"></i> Send
+           </button>
+        </form>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 TrustLink — Secure, documented peer exchanges.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-scroll to bottom of messages
+        const messagesArea = document.getElementById('messagesArea');
+        if (messagesArea) {
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+    </script>
+</body>
+</html>
